@@ -151,7 +151,7 @@ extern DECLSPEC SDL_SensorType SDLCALL SDL_SensorGetDeviceType(int device_index)
  *
  *  \return The sensor platform dependent type, or -1 if device_index is out of range.
  */
-extern DECLSPEC int SDLCALL SDL_SensorGetDeviceNonPortableType(int device_index);
+extern DECLSPEC SDL_SensorType SDLCALL SDL_SensorGetDeviceNonPortableType(int device_index);
 
 /**
  *  \brief Get the instance ID of a sensor.

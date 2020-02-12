@@ -3416,7 +3416,23 @@ CheckNoStrictAliasing
 dnl Do this for every platform, but for some it doesn't mean anything, but better to catch it here anyhow.
 CheckEventSignals
 
+AC_ARG_ENABLE(n3ds, AC_HELP_STRING([--enable-n3ds], [configure SDL to work with n3ds [[default=no]]]), , enable_n3ds=no)
+if test x$enable_n3ds = xyes; then
+        ARCH=n3ds
+        N3DS_CFLAGS="-ffunction-sections -fdata-sections -march=armv6k \
+                     -mtune=mpcore -mfloat-abi=hard -mword-relocations \
+                     -I$DEVKITPRO/libctru/include -DARM11 -D_3DS"
+        EXTRA_CFLAGS="$EXTRA_CFLAGS $N3DS_CFLAGS"
+        CFLAGS="$CFLAGS $N3DS_CFLAGS"
+        SDL_CFLAGS="$SDL_CFLAGS $N3DS_CFLAGS"
+        SDL_LIBS="-specs=3dsx.specs -march=armv6k -mfloat-abi=hard \
+                  -L${DEVKITPRO}/portlibs/3ds $SDL_LIBS \
+                  -L${DEVKITPRO}/libctru/lib -lcitro3d -lctru"
+        CheckDummyVideo
+        CheckDummyAudio
+fi
 dnl Set up the configuration based on the host platform!
+
 case "$host" in
     *-*-linux*|*-*-uclinux*|*-*-gnu*|*-*-k*bsd*-gnu|*-*-bsdi*|*-*-freebsd*|*-*-dragonfly*|*-*-netbsd*|*-*-openbsd*|*-*-sysv5*|*-*-solaris*|*-*-hpux*|*-*-aix*|*-*-minix*|*-*-nto*)
         case "$host" in
@@ -4064,9 +4080,11 @@ AS_HELP_STRING([--enable-render-d3d], [enable the Direct3D render driver [[defau
         fi
         ;;
     *)
-        AC_MSG_ERROR([
+        if test x$enable_n3ds != xyes; then
+            AC_MSG_ERROR([
 *** Unsupported host:  Please add to configure.ac
-        ])
+            ])
+        fi
         ;;
 esac
 

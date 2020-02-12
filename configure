@@ -899,6 +899,7 @@ enable_clock_gettime
 enable_rpath
 enable_backgrounding_signal
 enable_foregrounding_signal
+enable_n3ds
 enable_render_d3d
 enable_sdl2_config
 '
@@ -1691,6 +1692,7 @@ Optional Features:
   --enable-foregrounding-signal
                           number to use for magic foregrounding signal or 'no'
                           [[default=no]]
+  --enable-n3ds           configure SDL to work with n3ds [[default=no]]
   --enable-render-d3d     enable the Direct3D render driver [[default=yes]]
   --enable-sdl2-config    Install sdl2-config [default=yes]
 
@@ -24535,6 +24537,28 @@ CheckNoStrictAliasing
 
 CheckEventSignals
 
+# Check whether --enable-n3ds was given.
+if test "${enable_n3ds+set}" = set; then :
+  enableval=$enable_n3ds;
+else
+  enable_n3ds=no
+fi
+
+if test x$enable_n3ds = xyes; then
+        ARCH=n3ds
+        N3DS_CFLAGS="-ffunction-sections -fdata-sections -march=armv6k \
+                     -mtune=mpcore -mfloat-abi=hard -mword-relocations \
+                     -I$DEVKITPRO/libctru/include -DARM11 -D_3DS"
+        EXTRA_CFLAGS="$EXTRA_CFLAGS $N3DS_CFLAGS"
+        CFLAGS="$CFLAGS $N3DS_CFLAGS"
+        SDL_CFLAGS="$SDL_CFLAGS $N3DS_CFLAGS"
+        SDL_LIBS="-specs=3dsx.specs -march=armv6k -mfloat-abi=hard \
+                  -L${DEVKITPRO}/portlibs/3ds $SDL_LIBS \
+                  -L${DEVKITPRO}/libctru/lib -lcitro3d -lctru"
+        CheckDummyVideo
+        CheckDummyAudio
+fi
+
 case "$host" in
     *-*-linux*|*-*-uclinux*|*-*-gnu*|*-*-k*bsd*-gnu|*-*-bsdi*|*-*-freebsd*|*-*-dragonfly*|*-*-netbsd*|*-*-openbsd*|*-*-sysv5*|*-*-solaris*|*-*-hpux*|*-*-aix*|*-*-minix*|*-*-nto*)
         case "$host" in
@@ -25360,9 +25384,11 @@ $as_echo "#define SDL_TIMER_UNIX 1" >>confdefs.h
         fi
         ;;
     *)
-        as_fn_error $? "
+        if test x$enable_n3ds != xyes; then
+            as_fn_error $? "
 *** Unsupported host:  Please add to configure.ac
-        " "$LINENO" 5
+            " "$LINENO" 5
+        fi
         ;;
 esac
 
