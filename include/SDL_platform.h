@@ -175,6 +175,11 @@
 #define __SDL_NOGETPROCADDR__
 #endif
 
+#if defined(__3DS__) || defined(_3DS)
+#undef __3DS__
+#define __3DS__ 1
+#define __SDL_NOGETPROCADDR__
+#endif
 
 #include "begin_code.h"
 /* Set up for C function definitions, even when using C++ */
